@@ -9,6 +9,14 @@ PDO Connection组件
 >composer require aweitian/dbConnection
 >
 ```
+new Tian\Connection\MysqlPdoConn ( [ 
+	'host' => '127.0.0.1',
+	'port' => 3306,
+	'user' => 'root',
+	'password' => 'root',
+	'charset' => 'utf8',
+	'database' => 'garri' 
+] );
 getDbName();
 getHost();
 getCharset();
@@ -20,5 +28,5 @@ transaction(\Closure $closure);
 beginTransaction();
 rollback();
 commit();
-getQueryLog(); 静态访求
+getQueryLog(); 静态访问
 ```
