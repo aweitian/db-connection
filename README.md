@@ -20,5 +20,5 @@ transaction(\Closure $closure);
 beginTransaction();
 rollback();
 commit();
-getQueryLog();
+getQueryLog(); 静态访求
 ```
