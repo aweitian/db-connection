@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * $links->setAttribute ( PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT );
+ * 设置为SILENT模式，执行有问题会有WARNNING产生
+ */
 namespace Tian\Connection;
 
 use PDO;
@@ -98,7 +102,7 @@ class MysqlPdoConn implements IConnection {
 		foreach ( $data as $k => $v ) {
 			$sth->bindValue ( $k, $v, array_key_exists ( $k, $bindType ) ? $bindType [$k] : \PDO::PARAM_STR );
 		}
-		if ($sth->execute ()) {
+		if (@$sth->execute ()) {
 			$id = $this->pdo->lastInsertId ();
 			return $id;
 		} else {
@@ -127,7 +131,7 @@ class MysqlPdoConn implements IConnection {
 			$sth->bindValue ( $k, $v, array_key_exists ( $k, $bindType ) ? $bindType [$k] : \PDO::PARAM_STR );
 		}
 		$sth->setFetchMode ( $fetch_mode );
-		if ($sth->execute ()) {
+		if (@$sth->execute ()) {
 			$ret = $sth->fetch ();
 			if (! is_array ( $ret ))
 				return [ ];
@@ -140,7 +144,7 @@ class MysqlPdoConn implements IConnection {
 	
 	/**
 	 *
-	 * 返回二维数组，最后一个参数默认为500，查询结果超过，切割后返回
+	 * 返回二维数组
 	 *
 	 * @param string $sql        	
 	 * @param array $data        	
@@ -158,7 +162,7 @@ class MysqlPdoConn implements IConnection {
 			$sth->bindValue ( $k, $v, array_key_exists ( $k, $bindType ) ? $bindType [$k] : \PDO::PARAM_STR );
 		}
 		$sth->setFetchMode ( $fetch_mode );
-		if ($sth->execute ()) {
+		if (@$sth->execute ()) {
 			$r = $sth->fetchAll ();
 			return $r;
 		}
@@ -186,7 +190,7 @@ class MysqlPdoConn implements IConnection {
 		foreach ( $data as $k => $v ) {
 			$sth->bindValue ( $k, $v, array_key_exists ( $k, $bindType ) ? $bindType [$k] : \PDO::PARAM_STR );
 		}
-		if ($sth->execute ()) {
+		if (@$sth->execute ()) {
 			return $sth->rowCount ();
 		} else {
 			$error = $sth->errorInfo ();
@@ -194,49 +198,49 @@ class MysqlPdoConn implements IConnection {
 			return 0;
 		}
 	}
-// 	/**
-// 	 * 批量添加
-// 	 * 返回影响行数
-// 	 *
-// 	 * @param string $table        	
-// 	 * @param array $fileds,里面加了`也没有关系        	
-// 	 * @param array $data二维数组，使用数字索引
-// 	 *        	[
-// 	 *        	[v1,v3,v4],
-// 	 *        	...
-// 	 *        	]
-// 	 * @param array $bindType
-// 	 *        	KEY和$fileds一样,如果field带了`符号，以去掉·为准，值为PDO:PARAM_**
-// 	 * @return int
-// 	 */
-// 	public function batchInsert($table, array $fileds, $data = [], $bindType = []) {
-// 		$sql = "INSERT INTO TABLE (FIELD) VALUES PLACEHOLDER";
-		
-// 		// 参数检查
-// 		if (count ( $data ) && ! is_array ( $data [0] ))
-// 			throw new \Exception ( "Malformed data" . var_export ( $data, true ) . " --- [[v1,v3,v5],[vw1,ve3,vwe5],...] " );
-		
-// 		$fileds = array_map ( function ($item) {
-// 			return str_replace ( '`', '', $item );
-// 		}, $fileds );
-// 		$filed = implode(',', $fileds);
-// 		$sth = $this->pdo->prepare ( $sql );
-// 		if (! $sth) {
-// 			$error = $sth->errorInfo ();
-// 			throw new Exception ( $sql . " ;BindParams:" . var_export ( $data, true ) . implode ( ';', $error ) );
-// 			return 0;
-// 		}
-// 		foreach ( $data as $k => $v ) {
-// 			$sth->bindValue ( $k, $v, array_key_exists ( $k, $bindType ) ? $bindType [$k] : \PDO::PARAM_STR );
-// 		}
-// 		if ($sth->execute ()) {
-// 			return $sth->rowCount ();
-// 		} else {
-// 			$error = $sth->errorInfo ();
-// 			throw new Exception ( $sql . " ;BindParams:" . var_export ( $data, true ) . implode ( ';', $error ) );
-// 			return 0;
-// 		}
-// 	}
+	// /**
+	// * 批量添加
+	// * 返回影响行数
+	// *
+	// * @param string $table
+	// * @param array $fileds,里面加了`也没有关系
+	// * @param array $data二维数组，使用数字索引
+	// * [
+	// * [v1,v3,v4],
+	// * ...
+	// * ]
+	// * @param array $bindType
+	// * KEY和$fileds一样,如果field带了`符号，以去掉·为准，值为PDO:PARAM_**
+	// * @return int
+	// */
+	// public function batchInsert($table, array $fileds, $data = [], $bindType = []) {
+	// $sql = "INSERT INTO TABLE (FIELD) VALUES PLACEHOLDER";
+	
+	// // 参数检查
+	// if (count ( $data ) && ! is_array ( $data [0] ))
+	// throw new \Exception ( "Malformed data" . var_export ( $data, true ) . " --- [[v1,v3,v5],[vw1,ve3,vwe5],...] " );
+	
+	// $fileds = array_map ( function ($item) {
+	// return str_replace ( '`', '', $item );
+	// }, $fileds );
+	// $filed = implode(',', $fileds);
+	// $sth = $this->pdo->prepare ( $sql );
+	// if (! $sth) {
+	// $error = $sth->errorInfo ();
+	// throw new Exception ( $sql . " ;BindParams:" . var_export ( $data, true ) . implode ( ';', $error ) );
+	// return 0;
+	// }
+	// foreach ( $data as $k => $v ) {
+	// $sth->bindValue ( $k, $v, array_key_exists ( $k, $bindType ) ? $bindType [$k] : \PDO::PARAM_STR );
+	// }
+	// if ($sth->execute ()) {
+	// return $sth->rowCount ();
+	// } else {
+	// $error = $sth->errorInfo ();
+	// throw new Exception ( $sql . " ;BindParams:" . var_export ( $data, true ) . implode ( ';', $error ) );
+	// return 0;
+	// }
+	// }
 	/**
 	 * 执行事务处理
 	 *
