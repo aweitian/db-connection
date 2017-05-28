@@ -156,6 +156,9 @@ class PdoTest extends PHPUnit_Framework_TestCase {
 		$data = $this->pdo->fetch( "SELECT * FROM `garri`.`g`" );
 		$this->assertEquals(23, $data['fint']);
 	}
+	public function testExecuteExcetpion() {
+		//$this->pdo->exec( "UPDATE g SET `fint` = `fint` + :a",['aa'=>2] );
+	}
 }
 
 
