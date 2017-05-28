@@ -1,5 +1,5 @@
 # PDO Connection组件
-####安装组件
+## 安装组件
 使用 composer 命令进行安装或下载源代码使用。
 >composer require aweitian/db-connection
 >
@@ -14,7 +14,7 @@ new Tian\Connection\MysqlPdoConn ( [
 	'database' => 'garri' 
 ] );
 ```
-####设置调试模式
+## 设置调试模式
 ```
 /**
  * 
@@ -23,13 +23,13 @@ new Tian\Connection\MysqlPdoConn ( [
  */
 function setDebugMode($mode);
 ```
-####连接信息获取
+## 连接信息获取
 ```
 getDbName();  #返回数据库名
 getHost();    #返回主机名
 getCharset(); #返回连接端口
 ```
-####添加记录
+## 添加记录
 ```
 /**
  *
@@ -42,7 +42,7 @@ getCharset(); #返回连接端口
  */
 insert($sql, $data = [], $bindType = []);
 ```
-####获取一行数据
+## 获取一行数据
 ```
 /**
  *
@@ -54,7 +54,7 @@ insert($sql, $data = [], $bindType = []);
  */
 public function fetch($sql, $data = [], $bindType = [], $fetch_mode = \PDO::FETCH_ASSOC)
 ```
-####获取表格数据
+## 获取表格数据
 ```
 /**
  *
@@ -66,7 +66,7 @@ public function fetch($sql, $data = [], $bindType = [], $fetch_mode = \PDO::FETC
  */
 public function fetchAll($sql, $data = [], $bindType = [], $fetch_mode = \PDO::FETCH_ASSOC)
 ```
-####SQL执行操作，可多条语句同时执行
+## SQL执行操作，可多条语句同时执行
 ```
 /**
  *
@@ -80,7 +80,7 @@ public function fetchAll($sql, $data = [], $bindType = [], $fetch_mode = \PDO::F
  */
 public function exec($sql, $data = [], $bindType = [])
 ```
-####事务
+## 事务
 ```
 function transaction(\Closure $closure) #返回对象本身
 function beginTransaction() #返回对象本身
