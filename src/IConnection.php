@@ -7,6 +7,7 @@
 namespace Tian\Connection;
 interface IConnection
 {
+	function setDebugMode($mode);
 	function getDbName();
 	function getHost();
 	function getPort();
