@@ -93,23 +93,24 @@ class MysqlPdoConn implements IConnection {
 	public function getCharset() {
 		return $this->config ['charset'];
 	}
-	/**
-	 *
-	 * 返回插入ID
-	 *
-	 * @param string $sql        	
-	 * @param array $data        	
-	 * @param array $bindType
-	 *        	KEY和DATA一样，值为PDO:PARAM_**
-	 * @return int
-	 */
+
+    /**
+     *
+     * 返回插入ID
+     *
+     * @param string $sql
+     * @param array $data
+     * @param array $bindType
+     *            KEY和DATA一样，值为PDO:PARAM_*
+     * @return int
+     * @throws Exception
+     */
 	public function insert($sql, $data = [], $bindType = []) {
 		self::$queryLogs [] = $sql . " " . var_export ( $data, true );
 		$sth = $this->pdo->prepare ( $sql );
 		if (! $sth) {
 			$error = $sth->errorInfo ();
 			throw new Exception ( $sql . " ;BindParams:" . var_export ( $data, true ) . implode ( ';', $error ) );
-			return 0;
 		}
 		foreach ( $data as $k => $v ) {
 			$sth->bindValue ( $k, $v, array_key_exists ( $k, $bindType ) ? $bindType [$k] : \PDO::PARAM_STR );
@@ -120,24 +121,26 @@ class MysqlPdoConn implements IConnection {
 		} else {
 			$error = $sth->errorInfo ();
 			throw new Exception ( $sql . " ;BindParams:" . var_export ( $data, true ) . implode ( ';', $error ) );
-			return 0;
 		}
 	}
-	/**
-	 *
-	 * 返回一维数组,SQL中的结果集中的第一个元组
-	 *
-	 * @param string $sql        	
-	 * @param array $data        	
-	 * @return array;
-	 */
+
+    /**
+     *
+     * 返回一维数组,SQL中的结果集中的第一个元组
+     *
+     * @param string $sql
+     * @param array $data
+     * @param array $bindType
+     * @param int $fetch_mode
+     * @return array ;
+     * @throws Exception
+     */
 	public function fetch($sql, $data = [], $bindType = [], $fetch_mode = \PDO::FETCH_ASSOC) {
 		$sth = $this->pdo->prepare ( $sql );
 		self::$queryLogs [] = $sql . " " . var_export ( $data, true );
 		if (! $sth) {
 			$error = $sth->errorInfo ();
 			throw new Exception ( $sql . " ;BindParams:" . var_export ( $data, true ) . implode ( ';', $error ) );
-			return [ ];
 		}
 		foreach ( $data as $k => $v ) {
 			$sth->bindValue ( $k, $v, array_key_exists ( $k, $bindType ) ? $bindType [$k] : \PDO::PARAM_STR );
@@ -151,24 +154,25 @@ class MysqlPdoConn implements IConnection {
 		}
 		$error = $sth->errorInfo ();
 		throw new Exception ( $sql . " ;BindParams:" . var_export ( $data, true ) . implode ( ';', $error ) );
-		return 0;
 	}
-	
-	/**
-	 *
-	 * 返回二维数组
-	 *
-	 * @param string $sql        	
-	 * @param array $data        	
-	 * @return array;
-	 */
+
+    /**
+     *
+     * 返回二维数组
+     *
+     * @param string $sql
+     * @param array $data
+     * @param array $bindType
+     * @param int $fetch_mode
+     * @return array ;
+     * @throws Exception
+     */
 	public function fetchAll($sql, $data = [], $bindType = [], $fetch_mode = \PDO::FETCH_ASSOC) {
 		$sth = $this->pdo->prepare ( $sql );
 		self::$queryLogs [] = $sql . " " . var_export ( $data, true );
 		if (! $sth) {
 			$error = $sth->errorInfo ();
 			throw new Exception ( $sql . " ;BindParams:" . var_export ( $data, true ) . implode ( ';', $error ) );
-			return [ ];
 		}
 		foreach ( $data as $k => $v ) {
 			$sth->bindValue ( $k, $v, array_key_exists ( $k, $bindType ) ? $bindType [$k] : \PDO::PARAM_STR );
@@ -180,24 +184,24 @@ class MysqlPdoConn implements IConnection {
 		}
 		$error = $sth->errorInfo ();
 		throw new Exception ( $sql . " ;BindParams:" . var_export ( $data, true ) . implode ( ';', $error ) );
-		return [ ];
 	}
-	/**
-	 *
-	 * 返回影响行数
-	 *
-	 * @param string $sql        	
-	 * @param array $data        	
-	 * @param array $bindType
-	 *        	KEY和DATA一样，值为PDO:PARAM_**
-	 * @return int
-	 */
+
+    /**
+     *
+     * 返回影响行数
+     *
+     * @param string $sql
+     * @param array $data
+     * @param array $bindType
+     *            KEY和DATA一样，值为PDO:PARAM_*
+     * @return int
+     * @throws Exception
+     */
 	public function exec($sql, $data = [], $bindType = []) {
 		$sth = $this->pdo->prepare ( $sql );
 		if (! $sth) {
 			$error = $sth->errorInfo ();
 			throw new Exception ( $sql . " ;BindParams:" . var_export ( $data, true ) . implode ( ';', $error ) );
-			return 0;
 		}
 		foreach ( $data as $k => $v ) {
 			$sth->bindValue ( $k, $v, array_key_exists ( $k, $bindType ) ? $bindType [$k] : \PDO::PARAM_STR );
@@ -207,7 +211,6 @@ class MysqlPdoConn implements IConnection {
 		} else {
 			$error = $sth->errorInfo ();
 			throw new Exception ( $sql . " ;BindParams:" . var_export ( $data, true ) . implode ( ';', $error ) );
-			return 0;
 		}
 	}
 	// /**
