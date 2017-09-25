@@ -49,11 +49,13 @@ class MysqlPdoConn implements IConnection {
 		$links->exec ( "SET sql_mode = ''" );
 		$this->pdo = $links;
 	}
-	/**
-	 * 
-	 * 设置为TRUE。异常由PDO对象抛出
-	 * 默认为FALSE，异常由MysqlPdoConn对象抛出
-	 */
+
+    /**
+     *
+     * 设置为TRUE。异常由PDO对象抛出
+     * 默认为FALSE，异常由MysqlPdoConn对象抛出
+     * @param $mode
+     */
 	public function setDebugMode($mode) {
 		if ($mode) {
 			$this->pdo->setAttribute ( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
