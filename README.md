@@ -1,11 +1,11 @@
 # PDO Connection组件
 ## 安装组件
 使用 composer 命令进行安装或下载源代码使用。
->composer require aweitian/db-connection
+>composer require aweitian/connection
 >
 ```
 //参数错误出抛出异常
-new Tian\Connection\MysqlPdoConn ( [ 
+new Aw\Db\Connection\Mysql ( [ 
 	'host' => '127.0.0.1',
 	'port' => 3306,
 	'user' => 'root',
@@ -42,6 +42,18 @@ getCharset(); #返回连接端口
  */
 insert($sql, $data = [], $bindType = []);
 ```
+## 获取一个数据
+```
+/**
+ *
+ * 返回一个标量
+ * @param string $sql        	
+ * @param array $data        	
+ * @return mixed;
+ */
+public function scalar($sql, $data = [], $bindType = [])
+```
+
 ## 获取一行数据
 ```
 /**
