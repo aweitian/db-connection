@@ -145,7 +145,10 @@ class Mysql
             return $id;
         } else {
             $error = $sth->errorInfo();
-            throw new Exception ($sql . " ;BindParams:" . var_export($data, true) . implode(';', $error));
+            throw new Exception (
+                $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
+                $error[0]
+            );
         }
     }
 
@@ -175,7 +178,10 @@ class Mysql
             return $ret[0];
         }
         $error = $sth->errorInfo();
-        throw new Exception ($sql . " ;BindParams:" . var_export($data, true) . implode(';', $error));
+        throw new Exception (
+            $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
+            $error[0]
+        );
 
     }
 
@@ -209,7 +215,10 @@ class Mysql
             return $ret;
         }
         $error = $sth->errorInfo();
-        throw new Exception ($sql . " ;BindParams:" . var_export($data, true) . implode(';', $error));
+        throw new Exception (
+            $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
+            $error[1]
+        );
     }
 
     /**
@@ -240,7 +249,10 @@ class Mysql
             return $r;
         }
         $error = $sth->errorInfo();
-        throw new Exception ($sql . " ;BindParams:" . var_export($data, true) . implode(';', $error));
+        throw new Exception (
+            $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
+            $error[1]
+        );
     }
 
     /**
@@ -268,7 +280,10 @@ class Mysql
             return $sth->rowCount();
         } else {
             $error = $sth->errorInfo();
-            throw new Exception ($sql . " ;BindParams:" . var_export($data, true) . implode(';', $error));
+            throw new Exception (
+                $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
+                $error[1]
+            );
         }
     }
 
