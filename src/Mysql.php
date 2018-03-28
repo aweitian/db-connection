@@ -217,7 +217,7 @@ class Mysql
         $error = $sth->errorInfo();
         throw new Exception (
             $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
-            $error[1]
+            $error[0]
         );
     }
 
@@ -251,7 +251,7 @@ class Mysql
         $error = $sth->errorInfo();
         throw new Exception (
             $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
-            $error[1]
+            $error[0]
         );
     }
 
@@ -282,7 +282,7 @@ class Mysql
             $error = $sth->errorInfo();
             throw new Exception (
                 $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
-                $error[1]
+                $error[0]
             );
         }
     }
