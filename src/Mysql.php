@@ -36,18 +36,16 @@ class Mysql
      *            'password' => pass
      *            'charset' => utf8
      *            ]
+     * @param array $options
      * @throws Exception
      */
-    public function __construct(array $config)
+    public function __construct(array $config, array $options = array())
     {
         $this->config = $config;
         $this->chkConf();
         $dsn = 'mysql:host=' . $this->getHost() . ';port=' . $this->getPort() . ';dbname=' . $this->getDbName();
 
-        $options = array(
-//            PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        );
+        $options[PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
         if (version_compare(PHP_VERSION, '5.3.6', '<')) {
             if (defined('PDO::MYSQL_ATTR_INIT_COMMAND')) {
                 $options[PDO::MYSQL_ATTR_INIT_COMMAND] = 'SET NAMES ' . $this->getCharset();
@@ -151,8 +149,7 @@ class Mysql
         } else {
             $this->lastSql = $sql;
             $this->lastBindData = $data;
-            if ($this->mode == PDO::ERRMODE_SILENT)
-            {
+            if ($this->mode == PDO::ERRMODE_SILENT) {
                 $error = $sth->errorInfo();
                 throw new Exception (
                     $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
@@ -189,8 +186,7 @@ class Mysql
         }
         $this->lastSql = $sql;
         $this->lastBindData = $data;
-        if ($this->mode == PDO::ERRMODE_SILENT)
-        {
+        if ($this->mode == PDO::ERRMODE_SILENT) {
             $error = $sth->errorInfo();
             throw new Exception (
                 $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
@@ -231,8 +227,7 @@ class Mysql
         }
         $this->lastSql = $sql;
         $this->lastBindData = $data;
-        if ($this->mode == PDO::ERRMODE_SILENT)
-        {
+        if ($this->mode == PDO::ERRMODE_SILENT) {
             $error = $sth->errorInfo();
             throw new Exception (
                 $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
@@ -270,8 +265,7 @@ class Mysql
         }
         $this->lastSql = $sql;
         $this->lastBindData = $data;
-        if ($this->mode == PDO::ERRMODE_SILENT)
-        {
+        if ($this->mode == PDO::ERRMODE_SILENT) {
             $error = $sth->errorInfo();
             throw new Exception (
                 $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
@@ -306,8 +300,7 @@ class Mysql
         } else {
             $this->lastSql = $sql;
             $this->lastBindData = $data;
-            if ($this->mode == PDO::ERRMODE_SILENT)
-            {
+            if ($this->mode == PDO::ERRMODE_SILENT) {
                 $error = $sth->errorInfo();
                 throw new Exception (
                     $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
