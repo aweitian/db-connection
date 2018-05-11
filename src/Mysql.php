@@ -9,6 +9,7 @@ namespace Aw\Db\Connection;
 
 use PDO;
 use Exception;
+use PDOStatement;
 
 class Mysql
 {
@@ -18,6 +19,11 @@ class Mysql
     protected $mode = PDO::ERRMODE_EXCEPTION;
     public $lastSql = '';
     public $lastBindData = array();
+    /**
+     * @var PDOStatement
+     */
+    protected $lastStm = null;
+
     /**
      *
      * @var \PDO
@@ -39,13 +45,12 @@ class Mysql
      * @param array $options
      * @throws Exception
      */
-    public function __construct(array $config, array $options = array())
+    public function __construct(array $config, array $options = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION))
     {
         $this->config = $config;
         $this->chkConf();
         $dsn = 'mysql:host=' . $this->getHost() . ';port=' . $this->getPort() . ';dbname=' . $this->getDbName();
 
-        $options[PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;
         if (version_compare(PHP_VERSION, '5.3.6', '<')) {
             if (defined('PDO::MYSQL_ATTR_INIT_COMMAND')) {
                 $options[PDO::MYSQL_ATTR_INIT_COMMAND] = 'SET NAMES ' . $this->getCharset();
@@ -121,6 +126,13 @@ class Mysql
         return $this->config ['charset'];
     }
 
+    public function reset()
+    {
+        $this->lastStm = null;
+        $this->lastBindData = array();
+        $this->lastSql = '';
+    }
+
     /**
      *
      * 返回插入ID
@@ -135,6 +147,7 @@ class Mysql
     public function insert($sql, $data = array(), $bindType = array())
     {
         self::$queryLogs [] = $sql . " " . var_export($data, true);
+        $this->reset();
         $sth = $this->pdo->prepare($sql);
         if (!$sth) {
             $error = $sth->errorInfo();
@@ -145,6 +158,7 @@ class Mysql
         }
         if (@$sth->execute()) {
             $id = $this->pdo->lastInsertId();
+            $this->lastStm = $sth;
             return $id;
         } else {
             $this->lastSql = $sql;
@@ -168,6 +182,7 @@ class Mysql
      */
     public function scalar($sql, $data = array(), $bindType = array())
     {
+        $this->reset();
         $sth = $this->pdo->prepare($sql);
         self::$queryLogs [] = $sql . " " . var_export($data, true);
         if (!$sth) {
@@ -180,6 +195,7 @@ class Mysql
         $sth->setFetchMode(\PDO::FETCH_NUM);
         if (@$sth->execute()) {
             $ret = $sth->fetch();
+            $this->lastStm = $sth;
             if (!is_array($ret))
                 return null;
             return $ret[0];
@@ -209,6 +225,7 @@ class Mysql
      */
     public function fetch($sql, $data = array(), $bindType = array(), $fetch_mode = \PDO::FETCH_ASSOC)
     {
+        $this->reset();
         $sth = $this->pdo->prepare($sql);
         self::$queryLogs [] = $sql . " " . var_export($data, true);
         if (!$sth) {
@@ -221,6 +238,7 @@ class Mysql
         $sth->setFetchMode($fetch_mode);
         if (@$sth->execute()) {
             $ret = $sth->fetch();
+            $this->lastStm = $sth;
             if (!is_array($ret))
                 return array();
             return $ret;
@@ -249,6 +267,7 @@ class Mysql
      */
     public function fetchAll($sql, $data = array(), $bindType = array(), $fetch_mode = \PDO::FETCH_ASSOC)
     {
+        $this->reset();
         $sth = $this->pdo->prepare($sql);
         self::$queryLogs [] = $sql . " " . var_export($data, true);
         if (!$sth) {
@@ -261,10 +280,12 @@ class Mysql
         $sth->setFetchMode($fetch_mode);
         if (@$sth->execute()) {
             $r = $sth->fetchAll();
+            $this->lastStm = $sth;
             return $r;
         }
         $this->lastSql = $sql;
         $this->lastBindData = $data;
+        $this->lastStm = $sth;
         if ($this->mode == PDO::ERRMODE_SILENT) {
             $error = $sth->errorInfo();
             throw new Exception (
@@ -287,6 +308,7 @@ class Mysql
      */
     public function exec($sql, $data = array(), $bindType = array())
     {
+        $this->reset();
         $sth = $this->pdo->prepare($sql);
         if (!$sth) {
             $error = $sth->errorInfo();
@@ -296,6 +318,7 @@ class Mysql
             $sth->bindValue($k, $v, array_key_exists($k, $bindType) ? $bindType [$k] : \PDO::PARAM_STR);
         }
         if (@$sth->execute()) {
+            $this->lastStm = $sth;
             return $sth->rowCount();
         } else {
             $this->lastSql = $sql;
@@ -309,6 +332,14 @@ class Mysql
             }
         }
     }
+
+    public function closeStm()
+    {
+        if ($this->lastStm) {
+            $this->lastStm->closeCursor();
+        }
+    }
+
 
     /**
      * 执行事务处理
@@ -352,6 +383,14 @@ class Mysql
         $this->pdo->rollback();
         return $this;
     }
+
+//    /**
+//     * @return PDO
+//     */
+//    public function getPdo()
+//    {
+//        return $this->pdo;
+//    }
 
     /**
      * 开启事务

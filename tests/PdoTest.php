@@ -7,10 +7,9 @@ class PdoTest extends PHPUnit_Framework_TestCase
      */
     private $pdo;
 
-    public function setUp()
+    public function c()
     {
         try {
-
             $this->pdo = new Aw\Db\Connection\Mysql (array(
                 'host' => '127.0.0.1',
                 'port' => '3306',
@@ -19,6 +18,7 @@ class PdoTest extends PHPUnit_Framework_TestCase
                 'charset' => 'utf8',
                 'database' => 'garri'
             ));
+            $this->d();
             $this->pdo->exec("
 			CREATE TABLE `gg` (
 			  `pk1` INT(10) UNSIGNED NOT NULL,
@@ -49,12 +49,13 @@ class PdoTest extends PHPUnit_Framework_TestCase
         // var_dump($this->pdo);
     }
 
-    public function tearDown()
+    public function d()
     {
         try {
-            $this->pdo->exec('DROP TABLE `gg`');
-            $this->pdo->exec('DROP TABLE `g`');
+            $this->pdo->exec('DROP TABLE IF EXISTS `g`');
+            $this->pdo->exec('DROP TABLE IF EXISTS `gg`');
         } catch (Exception $e) {
+            print $e->getMessage();
         }
 
     }
@@ -72,7 +73,7 @@ class PdoTest extends PHPUnit_Framework_TestCase
      */
     public function testInsert1()
     {
-
+        $this->c();
         // 不是AUTO的PK，返回为LAST_INSERT_ID为0，所以这里使用EXEC，返回影响行数更合理
         $id = $this->pdo->exec("
 				INSERT INTO `garri`.`gg` (
@@ -105,6 +106,7 @@ class PdoTest extends PHPUnit_Framework_TestCase
             'notnullable' => 'lol'
         ));
         $this->assertEquals($id, 1);
+        $this->d();
     }
 
     /**
@@ -115,6 +117,7 @@ class PdoTest extends PHPUnit_Framework_TestCase
      */
     public function testInsert2()
     {
+        $this->c();
         // 不是AUTO的PK，返回为LAST_INSERT_ID为0，所以这里使用EXEC，返回影响行数更合理
         $id = $this->pdo->insert("
 				INSERT INTO `garri`.`g` (
@@ -150,57 +153,68 @@ class PdoTest extends PHPUnit_Framework_TestCase
             'data' => '2017-1-27'
         ));
         $this->assertEquals($id, 2);
+        $this->d();
     }
-
-    public function testFetch()
-    {
-        // 不是AUTO的PK，返回为LAST_INSERT_ID为0，所以这里使用EXEC，返回影响行数更合理
-        $this->testInsert2();
-        $row = $this->pdo->fetch("SELECT * FROM `garri`.`g`");
-        $this->assertArraySubset(array(
-            'fint' => 22,
-            'data' => '2017-5-27'
-        ), $row);
-    }
-
-    public function testFetchScalar()
-    {
-        $this->testInsert2();
-        $value = $this->pdo->scalar("SELECT fint FROM `garri`.`g`");
-        $this->assertEquals(5, $value);
-    }
-
-    public function testFetchAll()
-    {
-        // 不是AUTO的PK，返回为LAST_INSERT_ID为0，所以这里使用EXEC，返回影响行数更合理
-        $this->testInsert2();
-        $data = $this->pdo->fetchAll("SELECT * FROM `garri`.`g`");
-        $this->assertEquals(2, count($data));
-    }
-
-    public function testDelete()
-    {
-        $this->testInsert2();
-        $data = $this->pdo->fetchAll("SELECT * FROM `garri`.`g`");
-        $this->assertEquals(2, count($data));
-        $this->pdo->exec("Delete from g");
-        $data = $this->pdo->fetchAll("SELECT * FROM `garri`.`g`");
-        $this->assertEquals(0, count($data));
-    }
-
-    public function testUpdate()
-    {
-        $this->testInsert2();
-        $cnt = $this->pdo->exec("UPDATE g SET `fint` = `fint` + 1");
-        $this->assertEquals(2, $cnt);
-        $data = $this->pdo->fetch("SELECT * FROM `garri`.`g`");
-        $this->assertEquals(23, $data['fint']);
-    }
-
-    public function testExecuteExcetpion()
-    {
-        //$this->pdo->exec( "UPDATE g SET `fint` = `fint` + :a",['aa'=>2] );
-    }
+//
+//    public function testFetch()
+//    {
+//        $this->c();
+//        // 不是AUTO的PK，返回为LAST_INSERT_ID为0，所以这里使用EXEC，返回影响行数更合理
+//        $this->testInsert2();
+//        $row = $this->pdo->fetch("SELECT * FROM `garri`.`g`");
+//        $this->assertArraySubset(array(
+//            'fint' => 22,
+//            'data' => '2017-5-27'
+//        ), $row);
+//        $this->d();
+//    }
+//
+//    public function testFetchScalar()
+//    {
+//        $this->c();
+//        $this->testInsert2();
+//        $value = $this->pdo->scalar("SELECT fint FROM `garri`.`g`");
+//        $this->assertEquals(5, $value);
+//        $this->d();
+//    }
+//
+//    public function testFetchAll()
+//    {
+//        $this->c();
+//        // 不是AUTO的PK，返回为LAST_INSERT_ID为0，所以这里使用EXEC，返回影响行数更合理
+//        $this->testInsert2();
+//        $data = $this->pdo->fetchAll("SELECT * FROM `garri`.`g`");
+//        $this->assertEquals(2, count($data));
+//        $this->d();
+//    }
+//
+//    public function testDelete()
+//    {
+//        $this->c();
+//        $this->testInsert2();
+//        $data = $this->pdo->fetchAll("SELECT * FROM `garri`.`g`");
+//        $this->assertEquals(2, count($data));
+//        $this->pdo->exec("Delete from g");
+//        $data = $this->pdo->fetchAll("SELECT * FROM `garri`.`g`");
+//        $this->assertEquals(0, count($data));
+//        $this->d();
+//    }
+//
+//    public function testUpdate()
+//    {
+//        $this->c();
+//        $this->testInsert2();
+//        $cnt = $this->pdo->exec("UPDATE g SET `fint` = `fint` + 1");
+//        $this->assertEquals(2, $cnt);
+//        $data = $this->pdo->fetch("SELECT * FROM `garri`.`g`");
+//        $this->assertEquals(23, $data['fint']);
+//        $this->d();
+//    }
+//
+//    public function testExecuteExcetpion()
+//    {
+//        //$this->pdo->exec( "UPDATE g SET `fint` = `fint` + :a",['aa'=>2] );
+//    }
 }
 
 
