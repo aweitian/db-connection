@@ -30,6 +30,7 @@ class Mysql
      */
     protected $pdo;
 
+    protected $last_error_code;
     /**
      * 获取连接
      *
@@ -165,6 +166,7 @@ class Mysql
             $this->lastBindData = $data;
             if ($this->mode == PDO::ERRMODE_SILENT) {
                 $error = $sth->errorInfo();
+                $this->last_error_code = $error[0];
                 throw new Exception (
                     $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
                     $error[0]
@@ -204,6 +206,7 @@ class Mysql
         $this->lastBindData = $data;
         if ($this->mode == PDO::ERRMODE_SILENT) {
             $error = $sth->errorInfo();
+            $this->last_error_code = $error[0];
             throw new Exception (
                 $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
                 $error[0]
@@ -247,6 +250,7 @@ class Mysql
         $this->lastBindData = $data;
         if ($this->mode == PDO::ERRMODE_SILENT) {
             $error = $sth->errorInfo();
+            $this->last_error_code = $error[0];
             throw new Exception (
                 $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
                 $error[0]
@@ -288,6 +292,7 @@ class Mysql
         $this->lastStm = $sth;
         if ($this->mode == PDO::ERRMODE_SILENT) {
             $error = $sth->errorInfo();
+            $this->last_error_code = $error[0];
             throw new Exception (
                 $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
                 $error[0]
@@ -325,12 +330,21 @@ class Mysql
             $this->lastBindData = $data;
             if ($this->mode == PDO::ERRMODE_SILENT) {
                 $error = $sth->errorInfo();
+                $this->last_error_code = $error[0];
                 throw new Exception (
                     $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
                     $error[0]
                 );
             }
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDuplicateEntry()
+    {
+        return $this->last_error_code == '23000';
     }
 
     public function closeStm()
