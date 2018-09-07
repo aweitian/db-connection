@@ -22,8 +22,8 @@ class ExceptionAllTest extends PHPUnit_Framework_TestCase
             $this->pdo->setSilentMode();
             $this->pdo->exec("
                 CREATE TABLE `ggg` (
-                  `g_id` int(11) NOT NULL AUTO_INCREMENT,
-                  `uni` varchar(8) DEFAULT NULL,
+                  `g_id` INT(11) NOT NULL AUTO_INCREMENT,
+                  `uni` VARCHAR(8) DEFAULT NULL,
                   PRIMARY KEY (`g_id`),
                   UNIQUE KEY `uni` (`uni`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8
@@ -69,7 +69,8 @@ class ExceptionAllTest extends PHPUnit_Framework_TestCase
             'uni' => 'lol'
         ));
         $this->assertEquals($id, 1);
-        $id = $this->pdo->exec("
+        try {
+            $id = $this->pdo->exec("
 				INSERT INTO `ggg` (
 				  `uni`
 				)
@@ -79,9 +80,13 @@ class ExceptionAllTest extends PHPUnit_Framework_TestCase
 				  );
 
 			", array(
-            'uni' => 'lol'
-        ));
-        $this->assertEquals($id, null);
+                'uni' => 'lol'
+            ));
+            $this->assertEquals($id, null);
+        } catch (Exception $exception) {
+            $this->assertTrue($this->pdo->isDuplicateEntry());
+        }
+
         $this->assertTrue($this->pdo->isDuplicateEntry());
         $this->d();
     }

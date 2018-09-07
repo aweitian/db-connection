@@ -31,6 +31,7 @@ class Mysql
     protected $pdo;
 
     protected $last_error_code;
+
     /**
      * 获取连接
      *
@@ -63,6 +64,9 @@ class Mysql
         $links = new PDO ($dsn, $config ['user'], $config ['password'], $options);
         $links->exec("SET sql_mode = ''");
         $this->pdo = $links;
+        if ($options[PDO::ATTR_ERRMODE] == PDO::ERRMODE_SILENT) {
+            $this->setSilentMode();
+        }
     }
 
     /**
@@ -84,7 +88,6 @@ class Mysql
     }
 
     /**
-     * @deprecated
      * 设置为TRUE。异常由PDO对象抛出
      * 默认为FALSE，异常由MysqlPdoConn对象抛出
      * @param $mode
@@ -152,6 +155,16 @@ class Mysql
         $this->lastSql = '';
     }
 
+    protected function errno($code)
+    {
+        if (preg_match("/^\d+$/", $code)) {
+            $err = $code;
+        } else {
+            $err = 500;
+        }
+        return $err;
+    }
+
     /**
      *
      * 返回插入ID
@@ -185,10 +198,10 @@ class Mysql
             if ($this->mode == PDO::ERRMODE_SILENT) {
                 $error = $sth->errorInfo();
                 $this->last_error_code = $error[0];
-//                throw new Exception (
-//                    $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
-//                    $error[0]
-//                );
+                throw new Exception (
+                    $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
+                    $this->errno($error[0])
+                );
             }
         }
     }
@@ -227,7 +240,7 @@ class Mysql
             $this->last_error_code = $error[0];
             throw new Exception (
                 $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
-                $error[0]
+                $this->errno($error[0])
             );
         }
 
@@ -271,7 +284,7 @@ class Mysql
             $this->last_error_code = $error[0];
             throw new Exception (
                 $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
-                $error[0]
+                $this->errno($error[0])
             );
         }
     }
@@ -313,7 +326,7 @@ class Mysql
             $this->last_error_code = $error[0];
             throw new Exception (
                 $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
-                $error[0]
+                $this->errno($error[0])
             );
         }
     }
@@ -349,20 +362,36 @@ class Mysql
             if ($this->mode == PDO::ERRMODE_SILENT) {
                 $error = $sth->errorInfo();
                 $this->last_error_code = $error[0];
-//                throw new Exception (
-//                    $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
-//                    $error[0]
-//                );
+                throw new Exception (
+                    $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
+                    $this->errno($error[0])
+                );
             }
         }
     }
 
     /**
      * @return bool
+     * @throws Exception
      */
     public function isDuplicateEntry()
     {
+        if ($this->mode != PDO::ERRMODE_SILENT) {
+            throw new Exception('只能在 ERRMODE_SILENT 模式来检测');
+        }
         return $this->last_error_code == '23000';
+    }
+
+    /**
+     * @return bool
+     * @throws Exception
+     */
+    public function isBindParaError()
+    {
+        if ($this->mode != PDO::ERRMODE_SILENT) {
+            throw new Exception('只能在 ERRMODE_SILENT 模式来检测');
+        }
+        return $this->last_error_code == 'HY093';
     }
 
     public function closeStm()
