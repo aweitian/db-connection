@@ -353,7 +353,7 @@ class Mysql
         foreach ($data as $k => $v) {
             $sth->bindValue($k, $v, array_key_exists($k, $bindType) ? $bindType [$k] : \PDO::PARAM_STR);
         }
-        if ($sth->execute()) {
+        if (@$sth->execute()) {
             $this->lastStm = $sth;
             return $sth->rowCount();
         } else {
