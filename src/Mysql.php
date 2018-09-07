@@ -66,7 +66,25 @@ class Mysql
     }
 
     /**
-     *
+     * 异常由MysqlPdoConn对象抛出
+     */
+    public function setSilentMode()
+    {
+        $this->mode = PDO::ERRMODE_SILENT;
+        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
+    }
+
+    /**
+     * 异常由PDO对象抛出
+     */
+    public function setExceptionMode()
+    {
+        $this->mode = PDO::ERRMODE_EXCEPTION;
+        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    }
+
+    /**
+     * @deprecated
      * 设置为TRUE。异常由PDO对象抛出
      * 默认为FALSE，异常由MysqlPdoConn对象抛出
      * @param $mode
@@ -167,10 +185,10 @@ class Mysql
             if ($this->mode == PDO::ERRMODE_SILENT) {
                 $error = $sth->errorInfo();
                 $this->last_error_code = $error[0];
-                throw new Exception (
-                    $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
-                    $error[0]
-                );
+//                throw new Exception (
+//                    $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
+//                    $error[0]
+//                );
             }
         }
     }
@@ -322,7 +340,7 @@ class Mysql
         foreach ($data as $k => $v) {
             $sth->bindValue($k, $v, array_key_exists($k, $bindType) ? $bindType [$k] : \PDO::PARAM_STR);
         }
-        if (@$sth->execute()) {
+        if ($sth->execute()) {
             $this->lastStm = $sth;
             return $sth->rowCount();
         } else {
@@ -331,10 +349,10 @@ class Mysql
             if ($this->mode == PDO::ERRMODE_SILENT) {
                 $error = $sth->errorInfo();
                 $this->last_error_code = $error[0];
-                throw new Exception (
-                    $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
-                    $error[0]
-                );
+//                throw new Exception (
+//                    $sql . " ;BindParams:" . var_export($data, true) . implode(';', $error),
+//                    $error[0]
+//                );
             }
         }
     }
