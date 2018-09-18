@@ -47,11 +47,11 @@ class Mysql
      * @param array $options
      * @throws Exception
      */
-    public function __construct(array $config, array $options = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION))
+    public function __construct(array $config = array(), array $options = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION))
     {
         $this->config = $config;
         $this->chkConf();
-        $dsn = 'mysql:host=' . $this->getHost() . ';port=' . $this->getPort() . ';dbname=' . $this->getDbName();
+        $dsn = 'mysql:host=' . $this->getHost() . ';port=' . $this->getPort();
 
         if (version_compare(PHP_VERSION, '5.3.6', '<')) {
             if (defined('PDO::MYSQL_ATTR_INIT_COMMAND')) {
@@ -67,6 +67,20 @@ class Mysql
         if ($options[PDO::ATTR_ERRMODE] == PDO::ERRMODE_SILENT) {
             $this->setSilentMode();
         }
+        if ($this->getDbName() != null) {
+            $this->useDb($this->config['database']);
+        }
+    }
+
+    /**
+     * @param $db
+     * @return $this
+     */
+    public function useDb($db)
+    {
+        $this->config['database'] = $db;
+        $this->pdo->exec("use $db");
+        return $this;
     }
 
     /**
@@ -112,7 +126,7 @@ class Mysql
         $f = $f && is_array($this->config);
         $f = $f && array_key_exists('host', $this->config);
         $f = $f && array_key_exists('port', $this->config);
-        $f = $f && array_key_exists('database', $this->config);
+        //$f = $f && array_key_exists('database', $this->config);
         $f = $f && array_key_exists('user', $this->config);
         $f = $f && array_key_exists('password', $this->config);
         $f = $f && array_key_exists('charset', $this->config);
@@ -120,7 +134,7 @@ class Mysql
             throw new \Exception ('Malformed config.' . var_export($this->config, true) . ' --- 
 				host => 127.0.0.1,
 				port => 3306,
-				database => db,
+				database => db, (optional)
 				user => user
 				password => pass
 				charset => utf8
@@ -130,7 +144,7 @@ class Mysql
 
     public function getDbName()
     {
-        return $this->config ['database'];
+        return isset($this->config ['database']) ? $this->config ['database'] : null;
     }
 
     public function getHost()
