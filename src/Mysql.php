@@ -79,7 +79,7 @@ class Mysql
     public function useDb($db)
     {
         $this->config['database'] = $db;
-        $this->pdo->exec("use $db");
+        $this->pdo->exec("use `$db`");
         return $this;
     }
 
