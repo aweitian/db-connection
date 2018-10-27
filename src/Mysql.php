@@ -32,6 +32,8 @@ class Mysql
 
     protected $last_error_code;
 
+    protected $is_no_data_update = true;
+
     /**
      * 获取连接
      *
@@ -167,6 +169,7 @@ class Mysql
         $this->lastStm = null;
         $this->lastBindData = array();
         $this->lastSql = '';
+        $this->is_no_data_update = true;
     }
 
     protected function errno($code)
@@ -369,7 +372,13 @@ class Mysql
         }
         if (@$sth->execute()) {
             $this->lastStm = $sth;
-            return $sth->rowCount();
+            $r = $sth->rowCount();
+            if ($r == 0) {
+                $this->is_no_data_update = true;
+            } else {
+                $this->is_no_data_update = false;
+            }
+            return $r;
         } else {
             $this->lastSql = $sql;
             $this->lastBindData = $data;
@@ -381,6 +390,7 @@ class Mysql
                     $this->errno($error[0])
                 );
             }
+            $this->is_no_data_update = true;
         }
     }
 
@@ -394,6 +404,14 @@ class Mysql
             throw new Exception('只能在 ERRMODE_SILENT 模式来检测');
         }
         return $this->last_error_code == '23000';
+    }
+
+    /**
+     * @return bool
+     */
+    public function isNoDataUpdate()
+    {
+        return $this->is_no_data_update;
     }
 
     /**
